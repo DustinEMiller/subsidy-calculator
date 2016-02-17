@@ -43,10 +43,21 @@
                 <input id="calculate" class="button" value="Calculate" type="submit"/>
             </div>
         </form>
+        <div id="subsidy-content">
+        </div>
         <script id="age-insured" type="text/x-handlebars-template">
-            <div class='address-wrapper' data-marker-index='{{index}}'>
+            <div>
                 <label for="age_insured_{{number}}">Age of person {{number}}</label>
                 <input name="age_insured_{{number}}" value="" type="text" placeholder="30" type="number" />   
+            </div>
+        </script>
+        <script id="subsidy-details" type="text/x-handlebars-template">
+            <div>
+                <p>Your Monthly Insurance Cost: {{monthInsureCost}}</p>
+                <p>Monthly cost: {{monthCost}}</p>  
+                <p>Yearly cost: {{yearCost}}</p> 
+                <p>Monthly tax credit: {{monthTax}}</p> 
+                <p>Year tax credit: {{yearTax}}</p> 
             </div>
         </script>
         <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>

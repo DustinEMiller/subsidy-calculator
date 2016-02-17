@@ -15,7 +15,6 @@ var SubsidyCalc = (function(){
 
 	function loadJSON(data) {
     	subsidyData = data;
-    	console.log(subsidyData);
     }
 
 	function handleInsured(evt) {
@@ -30,7 +29,11 @@ var SubsidyCalc = (function(){
     function handleCalculate(evt) {
     	var multiplier = $houseSize.val()-1,
     		fplHouseSize = subsidyData.fpl[0].increment * multiplier + subsidyData.fpl[0].base,
-    		found = false;
+    		found = false,
+            planCost = 0,
+            template = Handlebars.compile($('#subsidy-details').html()),
+            context,
+            contributionAmount;
 
     	subsidyData.fpl.map(function(row, index){
     		var upperValue = row.increment * multiplier + row.base,
@@ -46,11 +49,20 @@ var SubsidyCalc = (function(){
 
     			found = true;
 
-    			$houseIncome.val() * (contributionPercent / 100);
+    			contributionAmount = $houseIncome.val() * (contributionPercent / 100);
 
-    			$('#insured-age-inputs :input').each(function(index,element) {
-    				$(element).doSomething();
+    			$('#insured-age-inputs :input').each(function(index,element) {  
+                    var property = $(element).val() === 20 ? "_0_20_child_dependents" : "_" + $(element).val();
+                    planCost += parseInt(slcspData[property]);
 				});
+                context = {
+                    monthInsureCost:planCost - (planCost - (contributionAmount / 12)),
+                    monthCost:planCost,    
+                    yearCost:planCost*12,
+                    monthTax:planCost - (contributionAmount / 12),
+                    yearTax:(planCost * 12) - contributionAmount,
+                }
+                $('#subsidy-content').append(template(context));
     		}	
     	});      
     }
@@ -58,13 +70,12 @@ var SubsidyCalc = (function(){
     function handleRateRetrieval(evt) {
     	$.ajax({
             url: 'https://data.healthcare.gov/resource/slcsp-county-zip-reference-data.json?$$app_token=GLTWkiZboiivpk9dcDz0GXvnP&zip_code=' + $zip.val(),
-            dataType: 'text',
+            dataType: 'json',
             complete: function(jqXHR, status) {
 
                 switch (status) {
                     case 'success':
-                        slcspData = JSON.parse(jqXHR.responseText);
-            			console.log(slcspData[0]);
+                        slcspData = JSON.parse(jqXHR.responseText)[0];
                         break;
                     default:
                     	console.log('error');
