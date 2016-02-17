@@ -1,0 +1,18 @@
+[
+	"flp":[
+		{"percent":100, "base":11770, "increment":4160},
+		{"percent":133, "base":15654, "increment":5533},
+		{"percent":150, "base":17655, "increment":6240},
+		{"percent":200, "base":23540, "increment":8320},
+		{"percent":300, "base":35310, "increment":12480},
+		{"percent":400, "base":47080, "increment":16640},
+	],
+	"contribution":[
+		{"min-earn":0,"max-earn":132.9,"min-contribution":2.03,"max-contribution":2.03},
+		{"min-earn":133,"max-earn":150,"min-contribution":3.05,"max-contribution":4.07},
+		{"min-earn":150,"max-earn":200,"min-contribution":4.07,"max-contribution":6.41},
+		{"min-earn":200,"max-earn":250,"min-contribution":6.41,"max-contribution":8.18},
+		{"min-earn":250,"max-earn":300,"min-contribution":8.18,"max-contribution":9.66},
+		{"min-earn":300,"max-earn":400,"min-contribution":9.66,"max-contribution":9.66}
+	]
+]

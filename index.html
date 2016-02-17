@@ -1,0 +1,57 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <form id="subsidy-calc" onsubmit="return false;">
+            <div>
+                <label for="zip">Zip Code</label>
+                <input name="zip" value="" type="text" placeholder="90210" type="number" /> 
+            </div>
+
+            <div>
+                <label for="income">Household Income</label>
+                <input name="income" value="" type="text" placeholder="$32,100" type="number" />
+            </div>
+
+            <div>
+                <label for="size">Household Size</label>
+                <input name="size" value="" type="text" placeholder="2" type="number" />
+            </div>
+
+            <div>
+                <label for="insured">Number of people needing insurance</label>
+                <input name="insured" value="" type="text" placeholder="2" type="number" />
+            </div>
+
+            <fieldset id="insured-age-inputs">
+            </fieldset>
+
+            <div>
+                <input id="calculate" class="button" value="Calculate" type="submit"/>
+            </div>
+        </form>
+        <script id="age-insured" type="text/x-handlebars-template">
+            <div class='address-wrapper' data-marker-index='{{index}}'>
+                <label for="age_insured_{{number}}">Age of person {{number}}</label>
+                <input name="age_insured_{{number}}" value="" type="text" placeholder="30" type="number" />   
+            </div>
+        </script>
+        <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.3/jquery.xdomainrequest.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>
