@@ -7,8 +7,9 @@ $(document).ready(function() {
 		income:'[name=income]',
 		insured:'[name=insured]',
 		insuredAge:'[name=insuredAge]',
-		calculate:'#subsidy-calc'	
+		form:'#subsidy-calc'	
 	});
+    $('#subsidy-calc').validate();
 });
 
 var SubsidyCalc = (function(){
@@ -92,12 +93,13 @@ var SubsidyCalc = (function(){
         $age = $(opts.age);
         $insured = $(opts.insured);
         $insuredAge = $(opts.insuredAge);
-        $calculate = $(opts.calculate);
+        $form = $(opts.form);
 
         //listen for changes and add the number of needed inputs
         $insured.bind('blur',handleInsured.bind(this));
         //form submission
-        $calculate.bind('submit',handleCalculate.bind(this));
+        $form.bind('submit',handleCalculate.bind(this));
+        console.log($form.validate());
 
         $zip.bind('blur',handleRateRetrieval.bind(this));
     }
