@@ -43,27 +43,28 @@
                 <input id="calculate" class="button" value="Calculate" type="submit"/>
             </div>
         </form>
-        <div id="subsidy-content">
-        </div>
+
+        <div id="subsidy-content"></div>
+
         <script id="age-insured" type="text/x-handlebars-template">
             <div>
                 <label for="age_insured_{{number}}">Age of person {{number}}</label>
-                <input name="age_insured_{{number}}" value="" type="text" placeholder="30" type="number" />   
+                <input name="age_insured_{{number}}" type="text" placeholder="30" type="number" required/>   
             </div>
         </script>
         <script id="subsidy-details" type="text/x-handlebars-template">
             <div>
-                <p>Your Monthly Insurance Cost: {{monthInsureCost}}</p>
-                <p>Monthly cost: {{monthCost}}</p>  
-                <p>Yearly cost: {{yearCost}}</p> 
-                <p>Monthly tax credit: {{monthTax}}</p> 
-                <p>Year tax credit: {{yearTax}}</p> 
+                <p>Your Monthly Insurance Cost: ${{monthInsureCost}}</p>
+                <p>Monthly cost: ${{monthCost}}</p>  
+                <p>Yearly cost: ${{yearCost}}</p> 
+                <p>Monthly tax credit: ${{monthTax}}</p> 
+                <p>Year tax credit: ${{yearTax}}</p> 
             </div>
         </script>
         <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.3/jquery.xdomainrequest.min.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js"></script>
-        <script src="media/jquery-validate.min.js"></script>
+        <script src="http://cdn.jsdelivr.net/jquery.validation/1.14.0/jquery.validate.min.js"></script>
         <script src="media/app.js"></script>
     </body>
 </html>
