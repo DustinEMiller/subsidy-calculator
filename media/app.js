@@ -121,7 +121,7 @@ var SubsidyCalc = (function(){
                     contributionAmount = $houseIncome.val() * (contributionPercent / 100);
 
                     insuredAgeInputs.each(function(index,element) {
-                        var property = $(element).val() === 20 ? "_0_20_child_dependents" : "_" + $(element).val();
+                        var property = parseInt($(element).val()) <= 20 ? "_0_20_child_dependents" : "_" + $(element).val();
                         planCost += parseInt(slcspData[property]);
                     });
 
