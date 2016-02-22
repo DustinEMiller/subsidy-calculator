@@ -10,10 +10,16 @@ $(document).ready(function() {
 		insured:'[name=insured]',
 		insuredAgeWrapper:'#insured-age-inputs',
         subsidyResultsWrapper:'#subsidy-content',
-        subsidyResultsContent: '#subsidy-details',
+        subsidyTemplate: '#subsidy-details',
         submitButton: '#calculate',
+        ageTemplate: '#age-insured',
 		form:'#subsidy-calc'	
 	});
+
+    $.validator.addMethod("zipcodeUS", function(value, element) {
+        return this.optional(element) || /\d{5}$/.test(value)
+    }, "The specified US ZIP Code is invalid");
+
 
     $('#subsidy-calc').validate({
         rules: {
@@ -21,6 +27,7 @@ $(document).ready(function() {
                     required: true,
                     minlength: 5,
                     maxlength: 5,
+                    zipcodeUS: true,
                     digits: true
                 },
                 size: {
@@ -49,62 +56,88 @@ var SubsidyCalc = (function(){
     	subsidyData = data;
     }
 
+    function formValidation() {     
+        var isValid = true;
+
+        if($(formString + ' .error').length > 0) {
+            isValid = false;
+
+        } 
+
+        if ( typeof(slcspData) === "undefined" || slcspData === null ) {
+            isValid = false;
+        }   
+
+        return isValid;   
+    }
+
 	function handleInsured(evt) {
-		$insuredAgeWrapper.html("");
-		for (var i = 1; i <= $insured.val(); i=i+1) {
-			var template = Handlebars.compile($('#age-insured').html()),
-				context = {number:i}
-			$insuredAgeWrapper.append(template(context));
+        var length = $($insuredAgeInputs).length,
+            startingVal = length <= 0 ? 0 : length;
+
+        if (length > $insured.val()) {
+            for (var i = 1; i <= length - parseInt($insured.val()); i=i+1) {
+                var number = parseInt($insured.val()) + i;
+                $("#age-input-"+number).remove();
+            }
+        } else { 
+            for (var i = startingVal; i < parseInt($insured.val()); i=i+1) {
+                var template = Handlebars.compile($ageTemplate.html()),
+                    context = {number:i+1}
+                $insuredAgeWrapper.append(template(context));
+            }
         }
+
     }
 
     function handleCalculate(evt) {
-    	var multiplier = $houseSize.val()-1,
-    		fplHouseSize = subsidyData.fpl[0].increment * multiplier + subsidyData.fpl[0].base,
-    		found = false,
+        var multiplier = $houseSize.val()-1,
+            fplHouseSize = subsidyData.fpl[0].increment * multiplier + subsidyData.fpl[0].base,
+            found = false, 
             planCost = 0,
-            template = Handlebars.compile($subsidyResultsContent.html()),
+            template = Handlebars.compile($subsidyTemplate.html()),
             context,
             contributionAmount;
 
-        $subsidyResultsWrapper.html();
+        console.log($('#subsidy-calc').valid());
 
-    	subsidyData.fpl.map(function(row, index){
-    		var upperValue = row.increment * multiplier + row.base,
-    			cIdx = index > 0 ? index - 1 : 0; 
+        if(formValidation()) {
 
-    		if($houseIncome.val() <= upperValue && !found) {
-    			var contributionCalc = (($houseIncome.val() / fplHouseSize) * 100 - subsidyData.contribution[cIdx].minEarn) / (subsidyData.contribution[cIdx].maxEarn - subsidyData.contribution[cIdx].minEarn),
-    				contributionPercent = ((subsidyData.contribution[cIdx].maxContribution - subsidyData.contribution[cIdx].minContribution) * contributionCalc) + subsidyData.contribution[cIdx].minContribution;
+            subsidyData.fpl.map(function(row, index){
+                var upperValue = row.increment * multiplier + row.base,
+                    cIdx = index > 0 ? index - 1 : 0,
+                    insuredAgeInputs = $($insuredAgeInputs);
 
-    			if(index === 0) {
-    				contributionPercent = subsidyData.contribution[cIdx].minContribution; 	
-    			}
+                if($houseIncome.val() <= upperValue && !found) {
+                    var contributionCalc = (($houseIncome.val() / fplHouseSize) * 100 - subsidyData.contribution[cIdx].minEarn) / (subsidyData.contribution[cIdx].maxEarn - subsidyData.contribution[cIdx].minEarn),
+                        contributionPercent = ((subsidyData.contribution[cIdx].maxContribution - subsidyData.contribution[cIdx].minContribution) * contributionCalc) + subsidyData.contribution[cIdx].minContribution;
 
-    			found = true;
+                    if(index === 0) {
+                        contributionPercent = subsidyData.contribution[cIdx].minContribution;   
+                    }
 
-    			contributionAmount = $houseIncome.val() * (contributionPercent / 100);
+                    found = true;
 
-                $insuredAgeInputs = $($insuredAgeInputs);
-    			$insuredAgeInputs.each(function(index,element) {  
-                    console.log(element);
-                    var property = $(element).val() === 20 ? "_0_20_child_dependents" : "_" + $(element).val();
-                    planCost += parseInt(slcspData[property]);
-				});
+                    contributionAmount = $houseIncome.val() * (contributionPercent / 100);
 
-                context = {
-                    monthInsureCost:(planCost - (planCost - (contributionAmount / 12))).toFixed(2),
-                    monthCost:planCost.toFixed(2),    
-                    yearCost:(planCost*12).toFixed(2),
-                    monthTax:(planCost - (contributionAmount / 12)).toFixed(2),
-                    yearTax:((planCost * 12) - contributionAmount).toFixed(2),
-                }
+                    insuredAgeInputs.each(function(index,element) {
+                        var property = $(element).val() === 20 ? "_0_20_child_dependents" : "_" + $(element).val();
+                        planCost += parseInt(slcspData[property]);
+                    });
 
-                $subsidyResultsWrapper.html("");
+                    context = {
+                        monthInsureCost:(planCost - (planCost - (contributionAmount / 12))).toFixed(2),
+                        monthCost:planCost.toFixed(2),    
+                        yearCost:(planCost*12).toFixed(2),
+                        monthTax:(planCost - (contributionAmount / 12)).toFixed(2),
+                        yearTax:((planCost * 12) - contributionAmount).toFixed(2),
+                    }
 
-                $subsidyResultsWrapper.append(template(context));
-    		}	
-    	});      
+                    $subsidyResultsWrapper.html(template(context));
+                    $subsidyResultsWrapper.show();
+                }   
+            });
+        }     
     }
 
     function handleRateRetrieval(evt) {
@@ -118,21 +151,11 @@ var SubsidyCalc = (function(){
                         slcspData = JSON.parse(jqXHR.responseText)[0];
                         break;
                     default:
-                    	console.log('error');
+                        slcspData = null;
                         break;
                 }
             }
         });      
-    }
-
-    function handleFormValidation(evt) {
-        $formErrors = $($formErrors);
-        if($formErrors.length > 0) {
-            $submitButton.prop("disabled", true);    
-        } else {
-            $submitButton.prop("disabled", false); 
-        }
-           
     }
 
 	function init(opts) {
@@ -142,11 +165,14 @@ var SubsidyCalc = (function(){
         $insured = $(opts.insured);
         $insuredAgeWrapper = $(opts.insuredAgeWrapper);
         $insuredAgeInputs = opts.insuredAgeWrapper + ' :input';
-        $subsidyResultsContent = $(opts.subsidyResultsContent);
+        $subsidyTemplate = $(opts.subsidyTemplate);
         $subsidyResultsWrapper = $(opts.subsidyResultsWrapper);
         $submitButton = $(opts.submitButton);
-        $formErrors = opts.form + ' .error';
+        $ageTemplate = $(opts.ageTemplate);
         $form = $(opts.form);
+        formString = opts.form;
+
+        $subsidyResultsWrapper.hide();
 
         //listen for changes and add the number of needed inputs
         $insured.bind('blur',handleInsured.bind(this));
@@ -160,6 +186,7 @@ var SubsidyCalc = (function(){
 	var
         subsidyData,
         slcspData,
+        formString,
 
         //DOM References
         $houseSize,
@@ -169,8 +196,9 @@ var SubsidyCalc = (function(){
         $insuredAgeWrapper,
         $insuredAgeInputs,
         $subsidyResultsWrapper,
-        $subsidyResultsContent,
+        $subsidyTemplate,
         $submitButton,
+        $ageTemplate,
         $form,
 
         publicAPI = {
