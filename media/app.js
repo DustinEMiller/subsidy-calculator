@@ -20,6 +20,9 @@ $(document).ready(function() {
         return this.optional(element) || /\d{5}$/.test(value)
     }, "The specified US ZIP Code is invalid");
 
+    $.validator.addMethod("insureeCheck", function(value, element) {
+        return !isNaN(parseInt($('[name=size]').val())) && value <= parseInt($('[name=size]').val())
+    }, "Number of insured people must be equal to or smaller than the number of people in your household");
 
     $('#subsidy-calc').validate({
         rules: {
@@ -44,10 +47,12 @@ $(document).ready(function() {
                     required: true,
                     minlength: 1,
                     maxlength: 2,
+                    insureeCheck: true,
                     digits: true
                 }
             },    
     });
+
 });
 
 var SubsidyCalc = (function(){
@@ -59,7 +64,7 @@ var SubsidyCalc = (function(){
     function formValidation() {     
         var isValid = true;
 
-        if($(formString + ' .error').length > 0) {
+        if(!$('#subsidy-calc').valid()) {
             isValid = false;
 
         } 
@@ -72,22 +77,27 @@ var SubsidyCalc = (function(){
     }
 
 	function handleInsured(evt) {
-        var length = $($insuredAgeInputs).length,
+        if($insured.valid()){
+            var length = $($insuredAgeInputs).length,
             startingVal = length <= 0 ? 0 : length;
 
-        if (length > $insured.val()) {
-            for (var i = 1; i <= length - parseInt($insured.val()); i=i+1) {
-                var number = parseInt($insured.val()) + i;
-                $("#age-input-"+number).remove();
-            }
-        } else { 
-            for (var i = startingVal; i < parseInt($insured.val()); i=i+1) {
-                var template = Handlebars.compile($ageTemplate.html()),
-                    context = {number:i+1}
-                $insuredAgeWrapper.append(template(context));
+            if (length > $insured.val()) {
+                for (var i = 1; i <= length - parseInt($insured.val()); i=i+1) {
+                    var number = parseInt($insured.val()) + i;
+                    $("#age-input-"+number).remove();
+                }
+            } else { 
+                for (var i = startingVal; i < parseInt($insured.val()); i=i+1) {
+                    var template = Handlebars.compile($ageTemplate.html()),
+                        context = {number:i+1}
+                    $insuredAgeWrapper.append(template(context));
+
+                    $("[name=age-insured-"+context.number+"]").rules( "add", {
+                        digits: true
+                    });
+                }
             }
         }
-
     }
 
     function handleCalculate(evt) {
@@ -98,8 +108,6 @@ var SubsidyCalc = (function(){
             template = Handlebars.compile($subsidyTemplate.html()),
             context,
             contributionAmount;
-
-        console.log($('#subsidy-calc').valid());
 
         if(formValidation()) {
 
@@ -141,21 +149,26 @@ var SubsidyCalc = (function(){
     }
 
     function handleRateRetrieval(evt) {
-    	$.ajax({
-            url: 'https://data.healthcare.gov/resource/slcsp-county-zip-reference-data.json?$$app_token=GLTWkiZboiivpk9dcDz0GXvnP&zip_code=' + $zip.val(),
-            dataType: 'json',
-            complete: function(jqXHR, status) {
+        var zipcode = $zip.val();
 
-                switch (status) {
-                    case 'success':
-                        slcspData = JSON.parse(jqXHR.responseText)[0];
-                        break;
-                    default:
-                        slcspData = null;
-                        break;
+        if(zipcode){
+            $.ajax({
+                url: 'https://data.healthcare.gov/resource/slcsp-county-zip-reference-data.json?$$app_token=GLTWkiZboiivpk9dcDz0GXvnP&zip_code=' + zipcode,
+                dataType: 'json',
+                complete: function(jqXHR, status) {
+
+                    switch (status) {
+                        case 'success':
+                            slcspData = JSON.parse(jqXHR.responseText)[0];
+                            break;
+                        default:
+                            slcspData = null;
+                            break;
+                    }
                 }
-            }
-        });      
+            });  
+        }
+    	    
     }
 
 	function init(opts) {
