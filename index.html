@@ -55,6 +55,9 @@
         </script>
         <script id="subsidy-details" type="text/x-handlebars-template">
             <div>
+                {{#if medicaid}}
+                <p>You may qualify for Medicaid. Link to apply.</p>
+                {{/if}}
                 {{#if found}}
                 <p>Your Monthly Insurance Cost: ${{monthInsureCost}}</p>
                 <p>Monthly cost without subsidy: ${{monthCost}}</p>  

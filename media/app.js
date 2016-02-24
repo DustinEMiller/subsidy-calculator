@@ -111,6 +111,7 @@ var SubsidyCalc = (function(){
             contributionAmount;
 
             context.found = false;
+            context.medicaid = false;
 
         if(formValidation()) {
 
@@ -122,6 +123,10 @@ var SubsidyCalc = (function(){
                 if($houseIncome.val() <= upperValue && !context.found) {
                     var contributionCalc = (($houseIncome.val() / fplHouseSize) * 100 - subsidyData.contribution[cIdx].minEarn) / (subsidyData.contribution[cIdx].maxEarn - subsidyData.contribution[cIdx].minEarn),
                         contributionPercent = ((subsidyData.contribution[cIdx].maxContribution - subsidyData.contribution[cIdx].minContribution) * contributionCalc) + subsidyData.contribution[cIdx].minContribution;
+
+                    console.log(contributionCalc);
+                    console.log(contributionPercent);
+                    console.log(row);
 
                     if(index === 0) {
                         contributionPercent = subsidyData.contribution[cIdx].minContribution;   
@@ -135,6 +140,9 @@ var SubsidyCalc = (function(){
                     });
 
                     if((planCost - (contributionAmount / 12)).toFixed(2) > 0) {
+                        if (parseInt(row.percent) <= 133) {
+                            context.medicaid = true;
+                        }
                         context.found = true;
                         context.monthInsureCost = (planCost - (planCost - (contributionAmount / 12))).toFixed(2);
                         context.monthCost = planCost.toFixed(2);   
