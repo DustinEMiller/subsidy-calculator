@@ -56,7 +56,10 @@
         <script id="subsidy-details" type="text/x-handlebars-template">
             <div>
                 {{#if medicaid}}
-                <p>You may qualify for Medicaid. Link to apply.</p>
+                <p>You may qualify for Medicaid. Link for more info.</p>
+                {{/if}}
+                {{#if medicare}}
+                <p>A person in your household may qualify for Medicare. Link for more info</p>
                 {{/if}}
                 {{#if found}}
                 <p>Your Monthly Insurance Cost: ${{monthInsureCost}}</p>

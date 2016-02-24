@@ -112,6 +112,7 @@ var SubsidyCalc = (function(){
 
             context.found = false;
             context.medicaid = false;
+            context.medicare = false;
 
         if(formValidation()) {
 
@@ -124,10 +125,6 @@ var SubsidyCalc = (function(){
                     var contributionCalc = (($houseIncome.val() / fplHouseSize) * 100 - subsidyData.contribution[cIdx].minEarn) / (subsidyData.contribution[cIdx].maxEarn - subsidyData.contribution[cIdx].minEarn),
                         contributionPercent = ((subsidyData.contribution[cIdx].maxContribution - subsidyData.contribution[cIdx].minContribution) * contributionCalc) + subsidyData.contribution[cIdx].minContribution;
 
-                    console.log(contributionCalc);
-                    console.log(contributionPercent);
-                    console.log(row);
-
                     if(index === 0) {
                         contributionPercent = subsidyData.contribution[cIdx].minContribution;   
                     }
@@ -135,7 +132,15 @@ var SubsidyCalc = (function(){
                     contributionAmount = $houseIncome.val() * (contributionPercent / 100);
 
                     insuredAgeInputs.each(function(index,element) {
-                        var property = parseInt($(element).val()) <= 20 ? "_0_20_child_dependents" : "_" + $(element).val();
+                        var property = "_" + $(element).val();
+
+                        //Add option for non-dependent children aged 20.
+                        if (parseInt($(element).val()) <= 20) {
+                            property  = "_0_20_child_dependents";
+                        } else if (parseInt($(element).val()) >= 65) {
+                            property = "_65_and_over";
+                            context.medicare = true;
+                        } 
                         planCost += parseInt(slcspData[property]);
                     });
 
@@ -169,6 +174,7 @@ var SubsidyCalc = (function(){
                     switch (status) {
                         case 'success':
                             slcspData = JSON.parse(jqXHR.responseText)[0];
+                            console.log(slcspData);
                             break;
                         default:
                             slcspData = null;
