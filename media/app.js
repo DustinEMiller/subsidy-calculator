@@ -174,7 +174,6 @@ var SubsidyCalc = (function(){
                     switch (status) {
                         case 'success':
                             slcspData = JSON.parse(jqXHR.responseText)[0];
-                            console.log(slcspData);
                             break;
                         default:
                             slcspData = null;
