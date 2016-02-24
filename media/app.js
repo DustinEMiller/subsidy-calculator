@@ -103,11 +103,12 @@ var SubsidyCalc = (function(){
     function handleCalculate(evt) {
         var multiplier = $houseSize.val()-1,
             fplHouseSize = subsidyData.fpl[0].increment * multiplier + subsidyData.fpl[0].base,
-            found = false, 
             planCost = 0,
             template = Handlebars.compile($subsidyTemplate.html()),
-            context,
+            context = {},
             contributionAmount;
+
+            context.found = false;
 
         if(formValidation()) {
 
@@ -116,7 +117,7 @@ var SubsidyCalc = (function(){
                     cIdx = index > 0 ? index - 1 : 0,
                     insuredAgeInputs = $($insuredAgeInputs);
 
-                if($houseIncome.val() <= upperValue && !found) {
+                if($houseIncome.val() <= upperValue && !context.found) {
                     var contributionCalc = (($houseIncome.val() / fplHouseSize) * 100 - subsidyData.contribution[cIdx].minEarn) / (subsidyData.contribution[cIdx].maxEarn - subsidyData.contribution[cIdx].minEarn),
                         contributionPercent = ((subsidyData.contribution[cIdx].maxContribution - subsidyData.contribution[cIdx].minContribution) * contributionCalc) + subsidyData.contribution[cIdx].minContribution;
 
@@ -124,27 +125,29 @@ var SubsidyCalc = (function(){
                         contributionPercent = subsidyData.contribution[cIdx].minContribution;   
                     }
 
-                    found = true;
+                    console.log((planCost - (contributionAmount / 12)).toFixed(2));
 
+                    
                     contributionAmount = $houseIncome.val() * (contributionPercent / 100);
 
                     insuredAgeInputs.each(function(index,element) {
                         var property = parseInt($(element).val()) <= 20 ? "_0_20_child_dependents" : "_" + $(element).val();
                         planCost += parseInt(slcspData[property]);
                     });
-
-                    context = {
-                        monthInsureCost:(planCost - (planCost - (contributionAmount / 12))).toFixed(2),
-                        monthCost:planCost.toFixed(2),    
-                        yearCost:(planCost*12).toFixed(2),
-                        monthTax:(planCost - (contributionAmount / 12)).toFixed(2),
-                        yearTax:((planCost * 12) - contributionAmount).toFixed(2),
+                    
+                    if((planCost - (contributionAmount / 12)).toFixed(2) > 0) {
+                        context.found = true;
+                        context.monthInsureCost = (planCost - (planCost - (contributionAmount / 12))).toFixed(2);
+                        context.monthCost = planCost.toFixed(2);   
+                        context.yearCost = (planCost*12).toFixed(2);
+                        context.monthTax = (planCost - (contributionAmount / 12)).toFixed(2);
+                        context.yearTax = ((planCost * 12) - contributionAmount).toFixed(2);
                     }
-
-                    $subsidyResultsWrapper.html(template(context));
-                    $subsidyResultsWrapper.show();
                 }   
             });
+            console.log(context.found);
+            $subsidyResultsWrapper.html(template(context));
+            $subsidyResultsWrapper.show();
         }     
     }
 

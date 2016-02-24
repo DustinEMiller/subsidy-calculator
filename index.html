@@ -55,11 +55,15 @@
         </script>
         <script id="subsidy-details" type="text/x-handlebars-template">
             <div>
+                {{#if found}}
                 <p>Your Monthly Insurance Cost: ${{monthInsureCost}}</p>
                 <p>Monthly cost without subsidy: ${{monthCost}}</p>  
                 <p>Yearly cost without subsidy: ${{yearCost}}</p> 
                 <p>Monthly tax credit: ${{monthTax}}</p> 
                 <p>Yearly tax credit: ${{yearTax}}</p> 
+                {{else}}
+                <p>You don't qualify for a subsidy at this time</p>
+                {{/if}}
             </div>
         </script>
         <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
