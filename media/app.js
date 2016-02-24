@@ -13,6 +13,8 @@ $(document).ready(function() {
         subsidyTemplate: '#subsidy-details',
         submitButton: '#calculate',
         ageTemplate: '#age-insured',
+        ageInputPrefixWrapper:'#age-input-',
+        ageInputPrefix:'[name=age-insured-',
 		form:'#subsidy-calc'	
 	});
 
@@ -64,7 +66,7 @@ var SubsidyCalc = (function(){
     function formValidation() {     
         var isValid = true;
 
-        if(!$('#subsidy-calc').valid()) {
+        if(!$form.valid()) {
             isValid = false;
 
         } 
@@ -84,7 +86,7 @@ var SubsidyCalc = (function(){
             if (length > $insured.val()) {
                 for (var i = 1; i <= length - parseInt($insured.val()); i=i+1) {
                     var number = parseInt($insured.val()) + i;
-                    $("#age-input-"+number).remove();
+                    $(ageInputPrefixWrapper+number).remove();
                 }
             } else { 
                 for (var i = startingVal; i < parseInt($insured.val()); i=i+1) {
@@ -92,7 +94,7 @@ var SubsidyCalc = (function(){
                         context = {number:i+1}
                     $insuredAgeWrapper.append(template(context));
 
-                    $("[name=age-insured-"+context.number+"]").rules( "add", {
+                    $(ageInputPrefix+context.number+"]").rules( "add", {
                         digits: true
                     });
                 }
@@ -124,9 +126,6 @@ var SubsidyCalc = (function(){
                     if(index === 0) {
                         contributionPercent = subsidyData.contribution[cIdx].minContribution;   
                     }
-
-                    console.log((planCost - (contributionAmount / 12)).toFixed(2));
-
                     
                     contributionAmount = $houseIncome.val() * (contributionPercent / 100);
 
@@ -134,7 +133,7 @@ var SubsidyCalc = (function(){
                         var property = parseInt($(element).val()) <= 20 ? "_0_20_child_dependents" : "_" + $(element).val();
                         planCost += parseInt(slcspData[property]);
                     });
-                    
+
                     if((planCost - (contributionAmount / 12)).toFixed(2) > 0) {
                         context.found = true;
                         context.monthInsureCost = (planCost - (planCost - (contributionAmount / 12))).toFixed(2);
@@ -145,7 +144,6 @@ var SubsidyCalc = (function(){
                     }
                 }   
             });
-            console.log(context.found);
             $subsidyResultsWrapper.html(template(context));
             $subsidyResultsWrapper.show();
         }     
@@ -186,7 +184,10 @@ var SubsidyCalc = (function(){
         $submitButton = $(opts.submitButton);
         $ageTemplate = $(opts.ageTemplate);
         $form = $(opts.form);
+
         formString = opts.form;
+        ageInputPrefixWrapper = opts.ageInputPrefixWrapper
+        ageInputPrefix = opts.ageInputPrefix;
 
         $subsidyResultsWrapper.hide();
 
@@ -203,6 +204,8 @@ var SubsidyCalc = (function(){
         subsidyData,
         slcspData,
         formString,
+        ageInputPrefixWrapper,
+        ageInputPrefix,
 
         //DOM References
         $houseSize,
